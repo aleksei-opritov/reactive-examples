@@ -13,10 +13,9 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 public class RouterFunctionConfig {
     @Bean
     public RouterFunction<ServerResponse> routes(CoffeeHandler handler) {
-        RouterFunctions.Builder var10000 = RouterFunctions.route();
+        RouterFunctions.Builder route = RouterFunctions.route();
         Objects.requireNonNull(handler);
-        var10000 = var10000.POST("/coffeeToRedis", handler::coffeeToRedis);
-        Objects.requireNonNull(handler);
-        return var10000.GET("/coffeeRedis", handler::coffeeRedis).build();
+        route = route.POST("/coffeeToRedis", handler::coffeeToRedis);
+        return route.GET("/coffeeRedis", handler::coffeeRedis).build();
     }
 }

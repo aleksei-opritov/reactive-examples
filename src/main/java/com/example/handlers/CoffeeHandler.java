@@ -1,9 +1,10 @@
 package com.example.handlers;
 
+import com.example.producers.CoffeeRedisConsumerGroup;
 import com.example.service.SendMessageToRedis;
 import com.example.model.Coffee;
-import com.example.producers.CoffeeRedisProducer;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -16,9 +17,10 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class CoffeeHandler {
     private final SendMessageToRedis sendMessageToRedis;
-    private final CoffeeRedisProducer redisProducer;
+    @Qualifier("coffeeRedisConsumerGroup")
+    private final CoffeeRedisConsumerGroup redisConsumerGroup;
     public Mono<ServerResponse> coffeeRedis(ServerRequest request) {
-        Flux<Coffee> coffee = this.redisProducer.consumeFromStream();
+        Flux<Coffee> coffee = this.redisConsumerGroup.getStreamPublisher();
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(coffee, Coffee.class);
     }
 
@@ -27,8 +29,6 @@ public class CoffeeHandler {
         return coffeeMono.flatMap((v) -> {
             this.sendMessageToRedis.send(v);
             return ServerResponse.ok().bodyValue("Value: " + v);
-        }).onErrorResume((error) -> {
-            return ServerResponse.badRequest().bodyValue(error.getMessage());
-        });
+        }).onErrorResume(error -> ServerResponse.badRequest().bodyValue(error.getMessage()));
     }
 }

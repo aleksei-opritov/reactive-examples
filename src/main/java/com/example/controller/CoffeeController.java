@@ -14,6 +14,6 @@ public class CoffeeController {
 
     @GetMapping({"/coffeeFlux"})
     public Flux<Coffee> coffeeSing() {
-        return this.producer.getCoffeeFlux();
+        return this.producer.getStreamPublisher();
     }
 }

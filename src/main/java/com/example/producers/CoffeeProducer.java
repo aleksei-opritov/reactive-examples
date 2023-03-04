@@ -9,18 +9,15 @@ import reactor.core.publisher.Flux;
 @Component
 @Getter
 @AllArgsConstructor
-public class CoffeeProducer {
-    private final Flux<Coffee> coffeeFlux = this.produce();
-    private Flux<Coffee> produce() {
-        return Flux.generate(() -> {
-            return 0;
-        }, (state, sink) -> {
-            sink.next(new Coffee(state.toString(), "state" + state));
-            if (state == 100) {
-                sink.complete();
-            }
-
-            return state + 1;
-        });
+public class CoffeeProducer implements StreamPublisher {
+    public Flux<Coffee> getStreamPublisher() {
+        return Flux.generate(() -> 0,
+            (state, sink) -> {
+                sink.next(new Coffee(state.toString(), "state" + state));
+                if (state == 100) {
+                    sink.complete();
+                }
+                return state + 1;
+            });
     }
 }
